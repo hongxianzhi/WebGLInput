@@ -134,10 +134,6 @@ namespace WebGLSupport
             if (GetComponent<InputField>()) return new WrappedInputField(GetComponent<InputField>());
 
             if (GetComponent<WebGLUIToolkitTextField>()) return new WrappedUIToolkit(GetComponent<WebGLUIToolkitTextField>());
-#if TMP_WEBGL_SUPPORT
-            if (GetComponent<TMPro.TMP_InputField>()) return new WrappedTMPInputField(GetComponent<TMPro.TMP_InputField>());
-#endif // TMP_WEBGL_SUPPORT
-
             throw new Exception("Can not Setup WebGLInput!!");
         }
 
