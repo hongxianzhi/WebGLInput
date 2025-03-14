@@ -38,28 +38,47 @@ public class WebGLSDK : MonoBehaviour
         m_strSendMessageToWebGLResult = result;
     }
 
-    public static string SendMessage(string funcName, string message = null)
+    public static string SendMessage(string funcName, params string[] args)
     {
         Init();
+        string message = null;
+        if(args.Length == 1)
+        {
+            message = args[0];
+        }
+        else if(args.Length > 1)
+        {
+            //ä½¿ç”¨LitJsonåºåˆ—åŒ–å‚æ•°
+            JsonData data = new JsonData();
+            for (int i = 0; i < args.Length; i++)
+            {
+                data.Add(args[i]);
+            }
+            message = data.ToJson();
+        }
         m_strSendMessageToWebGLResult = null;
         _SendMessageToWebGL(funcName, message);
         return m_strSendMessageToWebGLResult;
     }
 
-    static Dictionary<string, System.Action<string, string>> m_webgleventDict = new Dictionary<string, System.Action<string, string>>();
+    static Dictionary<string, System.Action<string, JsonData>> m_webgleventDict = new Dictionary<string, System.Action<string, JsonData>>();
     void OnWebGLEvent(string json)
     {
         JsonData data = JsonMapper.ToObject(json);
         try
         {
-            //½âÎöjson£¬»ñÈ¡NameºÍParam
+            //è§£æjsonï¼Œè·å–Nameå’ŒParam
+            JsonData param = data["Param"];
             string name = data["Name"].ToString();
-            string param = data["Param"].ToString();
-            Debug.Log("OnWebGLEvent: " + name + " " + param);
-            m_webgleventDict.TryGetValue(name, out System.Action<string, string> listener);
+            m_webgleventDict.TryGetValue(name, out System.Action<string, JsonData> listener);
             if (listener != null)
             {
+                Debug.Log("OnWebGLEvent: " + name + " " + param + " " + listener);
                 listener(name, param);
+            }
+            else
+            {
+                Debug.LogWarning("OnWebGLEvent: " + name + " " + param + " no listener");
             }
         }
         catch (Exception e)
@@ -68,13 +87,13 @@ public class WebGLSDK : MonoBehaviour
         }
     }
 
-    static public void AddListener(string eventName, System.Action<string, string> listener)
+    static public void AddListener(string eventName, System.Action<string, JsonData> listener)
     {
         if(listener == null)
         {
             return;
         }
-        m_webgleventDict.TryGetValue(eventName, out System.Action<string, string> oldListener);
+        m_webgleventDict.TryGetValue(eventName, out System.Action<string, JsonData> oldListener);
         if(oldListener != null)
         {
             oldListener += listener;
@@ -85,13 +104,13 @@ public class WebGLSDK : MonoBehaviour
         }
     }
 
-    static public void DelListener(string eventName, System.Action<string, string> listener)
+    static public void DelListener(string eventName, System.Action<string, JsonData> listener)
     {
         if(listener == null)
         {
             return;
         }
-        m_webgleventDict.TryGetValue(eventName, out System.Action<string, string> oldListener);
+        m_webgleventDict.TryGetValue(eventName, out System.Action<string, JsonData> oldListener);
         if(oldListener != null)
         {
             oldListener -= listener;

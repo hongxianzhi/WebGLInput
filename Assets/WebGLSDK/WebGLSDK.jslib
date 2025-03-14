@@ -1,5 +1,5 @@
 var WebGLSDK = {
-    //µ÷ÓÃwebÖĞµÄº¯Êı£¬²¢´«µİ²ÎÊı
+    //è°ƒç”¨webä¸­çš„å‡½æ•°ï¼Œå¹¶ä¼ é€’å‚æ•°
     _SendMessageToWebGL: function (funcName, args) {
         let result = null;
         args = UTF8ToString(args);
