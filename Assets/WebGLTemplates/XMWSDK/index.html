@@ -10,6 +10,49 @@
     <link rel="stylesheet" href="<<<TemplateData/diagnostics.css>>>">
     <script src="<<<TemplateData/diagnostics.js>>>"></script>
 #endif
+
+    <link rel="manifest" href="./pwa/manifest.json" />
+    <script>
+      let deferredPrompt1;
+      let isSupportPwa = false;
+      if ("onbeforeinstallprompt" in window) {
+        window.addEventListener("beforeinstallprompt", (e) => {
+          e.preventDefault();
+          deferredPrompt1 = e;
+          console.log("deferredPrompt==", deferredPrompt1);
+        });
+      } else {
+        // 浏览器不支持 beforeinstallprompt 事件
+        console.log("Browser does not support beforeinstallprompt event");
+        isSupportPwa = false;
+      }
+    
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./pwa/service-worker.js?" + new Date().getTime()) // 避免缓存
+            .then((registration) => {
+              console.log(
+                "Service Worker registered with scope:",
+                registration.scope
+              );
+              if (deferredPrompt1) {
+                // callback(true); // 支持 PWA 安装
+                isSupportPwa = true;
+              } else {
+                // callback(false); // 不支持 PWA 安装
+                isSupportPwa = false;
+              }
+            })
+            .catch((error) => {
+              console.log("Service Worker registration failed:", error);
+              // callback(false); // 不支持 PWA 安装
+              isSupportPwa = false;
+            });
+        });
+      }
+    </script>
+
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">

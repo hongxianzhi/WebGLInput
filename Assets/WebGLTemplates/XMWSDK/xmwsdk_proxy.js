@@ -28,8 +28,12 @@ let __SendMessageToUnity = function (host, funcName, message) {
 
 //返回结果给Unity
 let RetResult = function (host, result) {
-  if(typeof result !== 'string'){
+  //如果为null或undefined，不返回
+  if(result == null){
     return;
+  }
+  if(result !== 'string'){
+    result = result.toString();
   }
   __SendMessageToUnity(host, "OnSendMessageToWebGLResult", result);
 }
